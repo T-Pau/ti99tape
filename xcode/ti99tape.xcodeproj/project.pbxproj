@@ -12,6 +12,7 @@
 		4B0C21E82663CADC0054DD62 /* Buffer.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4B0C21E62663CADC0054DD62 /* Buffer.cc */; };
 		4B0C21EB2663CD6F0054DD62 /* Exception.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4B0C21E92663CD6F0054DD62 /* Exception.cc */; };
 		4B9E89AB2664CF2F00CC3407 /* Pulses.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4B9E89A92664CF2F00CC3407 /* Pulses.cc */; };
+		4BB3125D2666883E0078973C /* TZX.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4BB3125B2666883E0078973C /* TZX.cc */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -46,6 +47,8 @@
 		4B9E89B7266632A600CC3407 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		4B9E89B8266632A700CC3407 /* TODO.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = TODO.md; sourceTree = "<group>"; };
 		4B9E89B9266634DC00CC3407 /* CMakeLists.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = CMakeLists.txt; path = src/CMakeLists.txt; sourceTree = "<group>"; };
+		4BB3125B2666883E0078973C /* TZX.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = TZX.cc; sourceTree = "<group>"; };
+		4BB3125C2666883E0078973C /* TZX.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TZX.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -86,6 +89,8 @@
 				4B0C21DC2663C5680054DD62 /* main.cc */,
 				4B9E89A92664CF2F00CC3407 /* Pulses.cc */,
 				4B9E89AA2664CF2F00CC3407 /* Pulses.h */,
+				4BB3125B2666883E0078973C /* TZX.cc */,
+				4BB3125C2666883E0078973C /* TZX.h */,
 				4B0C21E32663C57D0054DD62 /* Wav.cc */,
 				4B0C21E42663C57D0054DD62 /* Wav.h */,
 			);
@@ -166,6 +171,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4BB3125D2666883E0078973C /* TZX.cc in Sources */,
 				4B0C21E52663C57D0054DD62 /* Wav.cc in Sources */,
 				4B9E89AB2664CF2F00CC3407 /* Pulses.cc in Sources */,
 				4B0C21EB2663CD6F0054DD62 /* Exception.cc in Sources */,
@@ -183,7 +189,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -242,7 +248,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++17";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;

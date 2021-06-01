@@ -2,6 +2,7 @@ SET(SOURCES
     Buffer.cc
     Exception.cc
     Pulses.cc
+    TZX.cc
     Wav.cc
     main.cc
 )

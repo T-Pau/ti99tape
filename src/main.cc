@@ -28,62 +28,38 @@
  IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "Pulses.h"
-#include "Wav.h"
+#include <filesystem>
+#include <fstream>
 
-static void output_data(const std::vector<uint64_t> &data);
-static void output_header();
-static void output_sync(uint64_t length, uint64_t count);
+#include "Exception.h"
+#include "Pulses.h"
+#include "TZX.h"
+#include "Wav.h"
 
 #define T_LENGTH 3500000
 
-int main(int argc, const char * argv[]) {
-    try {
-        auto wav = Wav(argv[1], Wav::LEFT);
-        auto pulses = Pulses(wav);
+static void convert_titape(const std::string &infile, const std::string &outfile);
+static void convert_wav(const std::string &infile, const std::string &outfile);
 
-        auto in_sync = true;
-        uint64_t sync_length = 0;
-        uint64_t sync_count = 0;
-        uint64_t zero_length = 0;
-        auto data = std::vector<uint64_t>();
-        
-        for (auto pulse : pulses) {
-            switch (pulse.type) {
-                case Pulses::SILENCE:
-                    // TODO: handle in middle of file
-                    break;
-                    
-                case Pulses::POSITIVE:
-                case Pulses::NEGATIVE:
-                    if (in_sync) {
-                        if (sync_count < 10 || pulse.duration >= zero_length * 3 / 4) {
-                            sync_length += pulse.duration;
-                            sync_count += 1;
-                            zero_length = sync_length / sync_count;
-                            break;
-                        }
-                        else {
-                            output_header();
-                            output_sync(zero_length * T_LENGTH / wav.sample_rate, sync_count);
-                            in_sync = false;
-                        }
-                    }
-                    
-                    data.push_back(pulse.duration * T_LENGTH / wav.sample_rate);
-                    if (data.size() == 255) {
-                        output_data(data);
-                        data.clear();
-                    }
-                    break;
-                    
-                case Pulses::END:
-                    break;
-            }
+int main(int argc, const char * argv[]) {
+    if (argc != 3) {
+        fprintf(stderr, "%s: infile outfile\n", argv[0]);
+        exit(1);
+    }
+    
+    std::string infile = argv[1];
+    std::string outfile = argv[2];
+    
+    try {
+        std::string extension = std::filesystem::path(infile).extension();
+        if (strcasecmp(extension.c_str(), ".wav") == 0) {
+            convert_wav(infile, outfile);
         }
-        
-        if (!data.empty()) {
-            output_data(data);
+        else if (strcasecmp(extension.c_str(), ".titape") == 0) {
+            convert_titape(infile, outfile);
+        }
+        else {
+            throw Exception("unknown extension '" + extension + "'");
         }
     }
     catch (std::exception &e) {
@@ -91,26 +67,103 @@ int main(int argc, const char * argv[]) {
     }
 }
 
-static void output_header() {
-    printf("ZXTape!%c%c%c", 0x1a, 1, 20);
+
+void convert_wav(const std::string &infile, const std::string &outfile) {
+    auto wav = Wav(infile, Wav::LEFT);
+    auto pulses = Pulses(wav);
+    auto tzx = TZX(outfile);
+
+    auto in_sync = true;
+    uint64_t sync_length = 0;
+    uint64_t sync_count = 0;
+    uint64_t zero_length = 0;
+    auto data = std::vector<uint64_t>();
+    
+    for (auto pulse : pulses) {
+        switch (pulse.type) {
+            case Pulses::SILENCE:
+                // TODO: handle in middle of file
+                break;
+                
+            case Pulses::POSITIVE:
+            case Pulses::NEGATIVE:
+                if (in_sync) {
+                    if (sync_count < 10 || pulse.duration >= zero_length * 3 / 4) {
+                        sync_length += pulse.duration;
+                        sync_count += 1;
+                        zero_length = sync_length / sync_count;
+                        break;
+                    }
+                    else {
+                        tzx.sync(zero_length * T_LENGTH / wav.sample_rate, sync_count);
+                        in_sync = false;
+                    }
+                }
+                
+                tzx.pulse(pulse.duration * T_LENGTH / wav.sample_rate);
+                break;
+                
+            case Pulses::END:
+                break;
+        }
+    }
 }
 
+#define PULSE_ZERO 2539
+#define PULSE_ONE 1269
+#define SYNC_PULSES (768 * 8)
 
-static void print16(uint64_t value) {
-    printf("%c%c", static_cast<int>(value & 0xff), static_cast<int>((value >> 8) & 0xff));
+void add_byte(TZX &tzx, uint8_t byte) {
+    for (auto i = 0; i < 8; i++) {
+        if (byte & (1 << (7-i))) {
+            tzx.pulse(PULSE_ONE);
+            tzx.pulse(PULSE_ONE);
+        }
+        else {
+            tzx.pulse(PULSE_ZERO);
+        }
+    }
 }
 
-static void output_sync(uint64_t length, uint64_t count) {
-    // Pure Tone block
-    printf("%c", 0x12);
-    print16(length);
-    print16(count);
+void add_block(TZX &tzx, std::vector<uint8_t>::iterator start, std::vector<uint8_t>::iterator end) {
+    auto checksum = 0;
+    
+    for (auto i = 0; i < 8; i++) {
+        add_byte(tzx, 0);
+    }
+    add_byte(tzx, 0xff);
+    for (auto i = 0; i < 64; i++) {
+        uint8_t byte = 0;
+        if (start < end) {
+            byte = *start;
+            start++;
+        }
+
+        add_byte(tzx, byte);
+        checksum = (checksum + byte) & 0xff;
+    }
+    add_byte(tzx, checksum);
 }
 
-
-static void output_data(const std::vector<uint64_t> &data) {
-    printf("%c%c", 0x13, static_cast<int>(data.size()));
-    for (auto value : data) {
-        print16(value);
+void convert_titape(const std::string &infile, const std::string &outfile) {
+    auto file = std::ifstream(infile, std::ios::binary);
+    auto data = std::vector<uint8_t>((std::istreambuf_iterator<char>(file)), (std::istreambuf_iterator<char>()));
+    auto tzx = TZX(outfile);
+    
+    tzx.sync(PULSE_ZERO, SYNC_PULSES);
+    
+    auto num_blocks = ((data.size() - 20) + 63) / 64;
+    
+    add_byte(tzx, 0xff);
+    add_byte(tzx, num_blocks);
+    add_byte(tzx, num_blocks);
+    
+    for (auto i = 0; i < num_blocks; i++) {
+        auto offset = 20 + i * 64;
+        auto start = data.begin() + offset;
+        auto end = offset > data.size() ? data.end() : start + 64;
+        
+        add_block(tzx, start, end);
+        add_block(tzx, start, end);
     }
 }
