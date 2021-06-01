@@ -154,6 +154,10 @@ void convert_titape(const std::string &infile, const std::string &outfile) {
     
     auto num_blocks = ((data.size() - 20) + 63) / 64;
     
+    if (num_blocks > 255) {
+        throw Exception("file too long");
+    }
+    
     add_byte(tzx, 0xff);
     add_byte(tzx, num_blocks);
     add_byte(tzx, num_blocks);
