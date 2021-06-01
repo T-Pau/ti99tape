@@ -7,7 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		4B0C21DD2663C5680054DD62 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 4B0C21DC2663C5680054DD62 /* main.cpp */; };
+		4B0C21DD2663C5680054DD62 /* main.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4B0C21DC2663C5680054DD62 /* main.cc */; };
+		4B0C21E52663C57D0054DD62 /* Wav.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4B0C21E32663C57D0054DD62 /* Wav.cc */; };
+		4B0C21E82663CADC0054DD62 /* Buffer.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4B0C21E62663CADC0054DD62 /* Buffer.cc */; };
+		4B0C21EB2663CD6F0054DD62 /* Exception.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4B0C21E92663CD6F0054DD62 /* Exception.cc */; };
+		4B9E89AB2664CF2F00CC3407 /* Pulses.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4B9E89A92664CF2F00CC3407 /* Pulses.cc */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -24,7 +28,24 @@
 
 /* Begin PBXFileReference section */
 		4B0C21D92663C5680054DD62 /* ti99tape */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ti99tape; sourceTree = BUILT_PRODUCTS_DIR; };
-		4B0C21DC2663C5680054DD62 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		4B0C21DC2663C5680054DD62 /* main.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cc; sourceTree = "<group>"; };
+		4B0C21E32663C57D0054DD62 /* Wav.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Wav.cc; sourceTree = "<group>"; };
+		4B0C21E42663C57D0054DD62 /* Wav.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Wav.h; sourceTree = "<group>"; };
+		4B0C21E62663CADC0054DD62 /* Buffer.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Buffer.cc; sourceTree = "<group>"; };
+		4B0C21E72663CADC0054DD62 /* Buffer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Buffer.h; sourceTree = "<group>"; };
+		4B0C21E92663CD6F0054DD62 /* Exception.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Exception.cc; sourceTree = "<group>"; };
+		4B0C21EA2663CD6F0054DD62 /* Exception.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Exception.h; sourceTree = "<group>"; };
+		4B9E89A92664CF2F00CC3407 /* Pulses.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Pulses.cc; sourceTree = "<group>"; };
+		4B9E89AA2664CF2F00CC3407 /* Pulses.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Pulses.h; sourceTree = "<group>"; };
+		4B9E89B12666322C00CC3407 /* CMakeLists.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
+		4B9E89B2266632A600CC3407 /* cmake-config.h.in */ = {isa = PBXFileReference; lastKnownFileType = text; path = "cmake-config.h.in"; sourceTree = "<group>"; };
+		4B9E89B3266632A600CC3407 /* AUTHORS */ = {isa = PBXFileReference; lastKnownFileType = text; path = AUTHORS; sourceTree = "<group>"; };
+		4B9E89B4266632A600CC3407 /* INSTALL.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = INSTALL.md; sourceTree = "<group>"; };
+		4B9E89B5266632A600CC3407 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		4B9E89B6266632A600CC3407 /* NEWS.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = NEWS.md; sourceTree = "<group>"; };
+		4B9E89B7266632A600CC3407 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
+		4B9E89B8266632A700CC3407 /* TODO.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = TODO.md; sourceTree = "<group>"; };
+		4B9E89B9266634DC00CC3407 /* CMakeLists.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = CMakeLists.txt; path = src/CMakeLists.txt; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -41,7 +62,8 @@
 		4B0C21D02663C5680054DD62 = {
 			isa = PBXGroup;
 			children = (
-				4B0C21DB2663C5680054DD62 /* ti99tape */,
+				4B9E89B02666321A00CC3407 /* build */,
+				4B0C21DB2663C5680054DD62 /* src */,
 				4B0C21DA2663C5680054DD62 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -54,12 +76,38 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		4B0C21DB2663C5680054DD62 /* ti99tape */ = {
+		4B0C21DB2663C5680054DD62 /* src */ = {
 			isa = PBXGroup;
 			children = (
-				4B0C21DC2663C5680054DD62 /* main.cpp */,
+				4B0C21E62663CADC0054DD62 /* Buffer.cc */,
+				4B0C21E72663CADC0054DD62 /* Buffer.h */,
+				4B0C21E92663CD6F0054DD62 /* Exception.cc */,
+				4B0C21EA2663CD6F0054DD62 /* Exception.h */,
+				4B0C21DC2663C5680054DD62 /* main.cc */,
+				4B9E89A92664CF2F00CC3407 /* Pulses.cc */,
+				4B9E89AA2664CF2F00CC3407 /* Pulses.h */,
+				4B0C21E32663C57D0054DD62 /* Wav.cc */,
+				4B0C21E42663C57D0054DD62 /* Wav.h */,
 			);
-			path = ti99tape;
+			name = src;
+			path = ../src;
+			sourceTree = "<group>";
+		};
+		4B9E89B02666321A00CC3407 /* build */ = {
+			isa = PBXGroup;
+			children = (
+				4B9E89B3266632A600CC3407 /* AUTHORS */,
+				4B9E89B2266632A600CC3407 /* cmake-config.h.in */,
+				4B9E89B9266634DC00CC3407 /* CMakeLists.txt */,
+				4B9E89B12666322C00CC3407 /* CMakeLists.txt */,
+				4B9E89B4266632A600CC3407 /* INSTALL.md */,
+				4B9E89B7266632A600CC3407 /* LICENSE */,
+				4B9E89B6266632A600CC3407 /* NEWS.md */,
+				4B9E89B5266632A600CC3407 /* README.md */,
+				4B9E89B8266632A700CC3407 /* TODO.md */,
+			);
+			name = build;
+			path = ..;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -118,7 +166,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4B0C21DD2663C5680054DD62 /* main.cpp in Sources */,
+				4B0C21E52663C57D0054DD62 /* Wav.cc in Sources */,
+				4B9E89AB2664CF2F00CC3407 /* Pulses.cc in Sources */,
+				4B0C21EB2663CD6F0054DD62 /* Exception.cc in Sources */,
+				4B0C21E82663CADC0054DD62 /* Buffer.cc in Sources */,
+				4B0C21DD2663C5680054DD62 /* main.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

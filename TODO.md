@@ -1,0 +1,4 @@
+- Optionally fully decode data and recreate pulses with ideal timing and without errors.
+- Create TZX file from TITape files and other decoded formats.
+- Make pulse and bit decoding more robust.
+- Handle files with slience in the middle, recording multiple files.
