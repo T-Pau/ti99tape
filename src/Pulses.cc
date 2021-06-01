@@ -91,7 +91,7 @@ void Pulses::Iterator::next() {
                 phase = PLUS_FALLING;
             }
             else if (sample < -pulses.cutoff) {
-                printf("ERROR: missing positive peak\n");
+                fprintf(stderr, "ERROR: missing positive peak\n");
             }
             break;
             
@@ -108,7 +108,7 @@ void Pulses::Iterator::next() {
                 phase = MINUS_RISING;
             }
             else if (sample > pulses.cutoff) {
-                printf("ERROR: missing negative peak\n");
+                fprintf(stderr, "ERROR: missing negative peak\n");
             }
             break;
             

@@ -50,36 +50,35 @@ int main(int argc, const char * argv[]) {
         
         for (auto pulse : pulses) {
             switch (pulse.type) {
-            case Pulses::SILENCE:
-                // TODO: handle in middle of file
-                break;
-                
-            case Pulses::POSITIVE:
-            case Pulses::NEGATIVE:
-                if (in_sync) {
-                    if (sync_count < 10 || pulse.duration >= zero_length * 3 / 4) {
-                        sync_length += pulse.duration;
-                        sync_count += 1;
-                        zero_length = sync_length / sync_count;
-                        break;
+                case Pulses::SILENCE:
+                    // TODO: handle in middle of file
+                    break;
+                    
+                case Pulses::POSITIVE:
+                case Pulses::NEGATIVE:
+                    if (in_sync) {
+                        if (sync_count < 10 || pulse.duration >= zero_length * 3 / 4) {
+                            sync_length += pulse.duration;
+                            sync_count += 1;
+                            zero_length = sync_length / sync_count;
+                            break;
+                        }
+                        else {
+                            output_header();
+                            output_sync(zero_length * T_LENGTH / wav.sample_rate, sync_count);
+                            in_sync = false;
+                        }
                     }
-                    else {
-                        output_header();
-                        output_sync(zero_length * T_LENGTH / wav.sample_rate, sync_count);
-                        in_sync = false;
-                    }
-                }
-                else {
+                    
                     data.push_back(pulse.duration * T_LENGTH / wav.sample_rate);
                     if (data.size() == 255) {
                         output_data(data);
                         data.clear();
                     }
-                }
-                break;
-                
-            case Pulses::END:
-                break;
+                    break;
+                    
+                case Pulses::END:
+                    break;
             }
         }
         
@@ -88,10 +87,7 @@ int main(int argc, const char * argv[]) {
         }
     }
     catch (std::exception &e) {
-        printf("ERROR: %s\n", e.what());
-    }
-    catch (...) {
-        printf("ERROR: fuck C++\n");
+        fprintf(stderr, "ERROR: %s\n", e.what());
     }
 }
 
@@ -100,21 +96,21 @@ static void output_header() {
 }
 
 
-static void print32(uint64_t value) {
+static void print16(uint64_t value) {
     printf("%c%c", static_cast<int>(value & 0xff), static_cast<int>((value >> 8) & 0xff));
 }
 
 static void output_sync(uint64_t length, uint64_t count) {
     // Pure Tone block
     printf("%c", 0x12);
-    print32(length);
-    print32(count);
+    print16(length);
+    print16(count);
 }
 
 
 static void output_data(const std::vector<uint64_t> &data) {
     printf("%c%c", 0x13, static_cast<int>(data.size()));
     for (auto value : data) {
-        print32(value);
+        print16(value);
     }
 }
