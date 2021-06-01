@@ -148,9 +148,10 @@ void add_block(TZX &tzx, std::vector<uint8_t>::iterator start, std::vector<uint8
 void convert_titape(const std::string &infile, const std::string &outfile) {
     auto file = std::ifstream(infile, std::ios::binary);
     auto data = std::vector<uint8_t>((std::istreambuf_iterator<char>(file)), (std::istreambuf_iterator<char>()));
-    auto tzx = TZX(outfile);
-    
-    tzx.sync(PULSE_ZERO, SYNC_PULSES);
+
+    if (strncmp(reinterpret_cast<const char *>(data.data()), "TI-TAPE", 7) != 0) {
+        throw Exception("not a TI-Tape file");
+    }
     
     auto num_blocks = ((data.size() - 20) + 63) / 64;
     
@@ -158,6 +159,9 @@ void convert_titape(const std::string &infile, const std::string &outfile) {
         throw Exception("file too long");
     }
     
+    auto tzx = TZX(outfile);
+    
+    tzx.sync(PULSE_ZERO, SYNC_PULSES);
     add_byte(tzx, 0xff);
     add_byte(tzx, num_blocks);
     add_byte(tzx, num_blocks);
