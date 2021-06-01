@@ -10,7 +10,7 @@ To connect the TI 99/4a to the MaxDuino, build a cable with a female DB-9 connec
 
 This tools is currently in early development. Features are still missing, usage will change, and what's there might not work as expected.
 
-Currently, it can read audio data of a TI 99/4A tape from a PCM encoded WAV file and outputs the corresponding TZX file on standard output.
+Currently, it can convert tape recordings in a PCM encoded WAV file or TI-Tape files and create TZX image files.
 
 It is written in C++17.
 
