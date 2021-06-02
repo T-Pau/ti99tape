@@ -32,7 +32,7 @@
 
 #include "Exception.h"
 
-Buffer::Buffer(const std::vector<uint8_t> &data_, size_t start, size_t length) : data(data_), start_position(start), current_position(start), end_position(start + length) {
+Buffer::Buffer(const std::vector<uint8_t> &data_, size_t start, size_t length) : data(data_), start_position(start), end_position(start + length), current_position(start) {
     if (end_position > data.size()) {
         throw Exception("buffer overrun");
     }

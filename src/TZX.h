@@ -31,23 +31,62 @@
  IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <cstdio>
-#include <string>
 #include <vector>
+
+#include "OutputFile.h"
 
 class TZX {
 public:
+    class GeneralizedDataBlock {
+    public:
+        class SymbolDefinition {
+        public:
+            SymbolDefinition(uint8_t flags_, const std::vector<uint16_t> &pulse_lengths_) : flags(flags_), pulse_lengths(pulse_lengths_) { }
+
+            uint8_t flags;
+            std::vector<uint16_t> pulse_lengths;
+        };
+        
+        class PilotRunLength {
+        public:
+            PilotRunLength(uint8_t symbol_, uint16_t repetitions_) : symbol(symbol_), repetitions(repetitions_) { }
+            
+            uint8_t symbol;
+            uint16_t repetitions;
+        };
+        
+        typedef std::vector<SymbolDefinition> SymbolDefinitions;
+        typedef std::vector<PilotRunLength> PilotData;
+        
+        GeneralizedDataBlock(uint16_t paus_after, const SymbolDefinitions &pilot_symbols, const PilotData &pilot_data, SymbolDefinitions &data_symbols, uint32_t data_size, const std::vector<uint8_t> &data);
+        
+        uint16_t pause_after;
+
+        uint8_t number_of_pilot_symbol_pulses;
+        SymbolDefinitions pilot_symbols;
+        PilotData pilot_data;
+
+        uint8_t number_of_data_symbol_pulses;
+        SymbolDefinitions data_symbols;
+        uint32_t data_size;
+        std::vector<uint8_t> data;
+
+        uint32_t block_length() const;
+
+    private:
+        uint8_t get_number_of_pulses(const SymbolDefinitions &symbols) const;
+    };
+
     TZX(const std::string &filename);
-    ~TZX();
     
-    void sync(uint64_t pulse_length, uint64_t count);
-    void pulse(uint64_t pulse_length);
+    void add_general_data(const GeneralizedDataBlock &block);
+    void add_pure_tone(uint16_t pulse_length, uint16_t repetitions);
+    void add_pulse_sequence(const std::vector<uint16_t> &pulses);
 
 private:
-    FILE *f;
-    std::vector<uint64_t> data;
+    OutputFile file;
     
-    void flush_data();
-    void print16(uint64_t value);
+    void write_symbol_definitions(uint8_t number_of_pulses, const GeneralizedDataBlock::SymbolDefinitions &symbols);
 };
+
 #endif // HAD_TZX_H

@@ -33,6 +33,7 @@
 
 #include "Exception.h"
 #include "Pulses.h"
+#include "TI99TapeEncoder.h"
 #include "TZX.h"
 #include "Wav.h"
 
@@ -71,8 +72,29 @@ int main(int argc, const char * argv[]) {
 void convert_wav(const std::string &infile, const std::string &outfile) {
     auto wav = Wav(infile, Wav::LEFT);
     auto pulses = Pulses(wav);
-    auto tzx = TZX(outfile);
+    
+    std::vector<uint16_t> data;
 
+    for (auto pulse : pulses) {
+        switch (pulse.type) {
+            case Pulses::SILENCE:
+                // TODO: handle in middle of file
+                break;
+        
+            case Pulses::POSITIVE:
+            case Pulses::NEGATIVE:
+                data.push_back(pulse.duration * T_LENGTH / wav.sample_rate);
+                break;
+
+            case Pulses::END:
+                break;
+        }
+    }
+    
+    auto tzx = TZX(outfile);
+    tzx.add_pulse_sequence(data);
+
+#if 0
     auto in_sync = true;
     uint64_t sync_length = 0;
     uint64_t sync_count = 0;
@@ -107,43 +129,11 @@ void convert_wav(const std::string &infile, const std::string &outfile) {
                 break;
         }
     }
+#endif
 }
 
-#define PULSE_ZERO 2539
-#define PULSE_ONE 1269
-#define SYNC_PULSES (768 * 8)
 
-void add_byte(TZX &tzx, uint8_t byte) {
-    for (auto i = 0; i < 8; i++) {
-        if (byte & (1 << (7-i))) {
-            tzx.pulse(PULSE_ONE);
-            tzx.pulse(PULSE_ONE);
-        }
-        else {
-            tzx.pulse(PULSE_ZERO);
-        }
-    }
-}
 
-void add_block(TZX &tzx, std::vector<uint8_t>::iterator start, std::vector<uint8_t>::iterator end) {
-    auto checksum = 0;
-    
-    for (auto i = 0; i < 8; i++) {
-        add_byte(tzx, 0);
-    }
-    add_byte(tzx, 0xff);
-    for (auto i = 0; i < 64; i++) {
-        uint8_t byte = 0;
-        if (start < end) {
-            byte = *start;
-            start++;
-        }
-
-        add_byte(tzx, byte);
-        checksum = (checksum + byte) & 0xff;
-    }
-    add_byte(tzx, checksum);
-}
 
 void convert_titape(const std::string &infile, const std::string &outfile) {
     auto file = std::ifstream(infile, std::ios::binary);
@@ -153,25 +143,7 @@ void convert_titape(const std::string &infile, const std::string &outfile) {
         throw Exception("not a TI-Tape file");
     }
     
-    auto num_blocks = ((data.size() - 20) + 63) / 64;
-    
-    if (num_blocks > 255) {
-        throw Exception("file too long");
-    }
-    
-    auto tzx = TZX(outfile);
-    
-    tzx.sync(PULSE_ZERO, SYNC_PULSES);
-    add_byte(tzx, 0xff);
-    add_byte(tzx, num_blocks);
-    add_byte(tzx, num_blocks);
-    
-    for (auto i = 0; i < num_blocks; i++) {
-        auto offset = 20 + i * 64;
-        auto start = data.begin() + offset;
-        auto end = offset > data.size() ? data.end() : start + 64;
-        
-        add_block(tzx, start, end);
-        add_block(tzx, start, end);
-    }
+    auto encoder = TI99TapeEncoder(outfile, false);
+
+    encoder.encode(data.begin() + 20, data.end());
 }

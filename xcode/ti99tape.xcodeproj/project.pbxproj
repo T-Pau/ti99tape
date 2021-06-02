@@ -12,6 +12,9 @@
 		4B0C21E82663CADC0054DD62 /* Buffer.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4B0C21E62663CADC0054DD62 /* Buffer.cc */; };
 		4B0C21EB2663CD6F0054DD62 /* Exception.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4B0C21E92663CD6F0054DD62 /* Exception.cc */; };
 		4B9E89AB2664CF2F00CC3407 /* Pulses.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4B9E89A92664CF2F00CC3407 /* Pulses.cc */; };
+		4B9E89BC26677CF400CC3407 /* utility.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4B9E89BA26677CF400CC3407 /* utility.cc */; };
+		4B9E89BF26678E4A00CC3407 /* TI99TapeEncoder.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4B9E89BD26678E4A00CC3407 /* TI99TapeEncoder.cc */; };
+		4B9E89C226678E8200CC3407 /* OutputFile.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4B9E89C026678E8200CC3407 /* OutputFile.cc */; };
 		4BB3125D2666883E0078973C /* TZX.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4BB3125B2666883E0078973C /* TZX.cc */; };
 /* End PBXBuildFile section */
 
@@ -47,6 +50,12 @@
 		4B9E89B7266632A600CC3407 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		4B9E89B8266632A700CC3407 /* TODO.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = TODO.md; sourceTree = "<group>"; };
 		4B9E89B9266634DC00CC3407 /* CMakeLists.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = CMakeLists.txt; path = src/CMakeLists.txt; sourceTree = "<group>"; };
+		4B9E89BA26677CF400CC3407 /* utility.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = utility.cc; sourceTree = "<group>"; };
+		4B9E89BB26677CF400CC3407 /* utility.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = utility.h; sourceTree = "<group>"; };
+		4B9E89BD26678E4A00CC3407 /* TI99TapeEncoder.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = TI99TapeEncoder.cc; sourceTree = "<group>"; };
+		4B9E89BE26678E4A00CC3407 /* TI99TapeEncoder.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TI99TapeEncoder.h; sourceTree = "<group>"; };
+		4B9E89C026678E8200CC3407 /* OutputFile.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = OutputFile.cc; sourceTree = "<group>"; };
+		4B9E89C126678E8200CC3407 /* OutputFile.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OutputFile.h; sourceTree = "<group>"; };
 		4BB3125B2666883E0078973C /* TZX.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = TZX.cc; sourceTree = "<group>"; };
 		4BB3125C2666883E0078973C /* TZX.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TZX.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -87,10 +96,16 @@
 				4B0C21E92663CD6F0054DD62 /* Exception.cc */,
 				4B0C21EA2663CD6F0054DD62 /* Exception.h */,
 				4B0C21DC2663C5680054DD62 /* main.cc */,
+				4B9E89C026678E8200CC3407 /* OutputFile.cc */,
+				4B9E89C126678E8200CC3407 /* OutputFile.h */,
 				4B9E89A92664CF2F00CC3407 /* Pulses.cc */,
 				4B9E89AA2664CF2F00CC3407 /* Pulses.h */,
+				4B9E89BD26678E4A00CC3407 /* TI99TapeEncoder.cc */,
+				4B9E89BE26678E4A00CC3407 /* TI99TapeEncoder.h */,
 				4BB3125B2666883E0078973C /* TZX.cc */,
 				4BB3125C2666883E0078973C /* TZX.h */,
+				4B9E89BA26677CF400CC3407 /* utility.cc */,
+				4B9E89BB26677CF400CC3407 /* utility.h */,
 				4B0C21E32663C57D0054DD62 /* Wav.cc */,
 				4B0C21E42663C57D0054DD62 /* Wav.h */,
 			);
@@ -174,8 +189,11 @@
 				4BB3125D2666883E0078973C /* TZX.cc in Sources */,
 				4B0C21E52663C57D0054DD62 /* Wav.cc in Sources */,
 				4B9E89AB2664CF2F00CC3407 /* Pulses.cc in Sources */,
+				4B9E89BC26677CF400CC3407 /* utility.cc in Sources */,
 				4B0C21EB2663CD6F0054DD62 /* Exception.cc in Sources */,
+				4B9E89BF26678E4A00CC3407 /* TI99TapeEncoder.cc in Sources */,
 				4B0C21E82663CADC0054DD62 /* Buffer.cc in Sources */,
+				4B9E89C226678E8200CC3407 /* OutputFile.cc in Sources */,
 				4B0C21DD2663C5680054DD62 /* main.cc in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
