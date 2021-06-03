@@ -57,6 +57,10 @@ void TI99TapeEncoder::encode(std::vector<uint8_t>::const_iterator start, std::ve
         throw Exception("file too long");
     }
     
+    if (!first) {
+        // TODO: add silence between files
+    }
+    
     add_byte(0xff);
     add_byte(num_blocks);
     add_byte(num_blocks);
@@ -68,10 +72,6 @@ void TI99TapeEncoder::encode(std::vector<uint8_t>::const_iterator start, std::ve
         add_block(start, block_end);
         
         start += 64;
-    }
-    
-    if (!first) {
-        // TODO: add silence between files
     }
     
     if (use_data_block) {

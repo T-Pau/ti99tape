@@ -1,4 +1,5 @@
 SET(SOURCES
+    BitVector.cc
     Buffer.cc
     Exception.cc
     OutputFile.cc

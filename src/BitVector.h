@@ -1,5 +1,8 @@
+#ifndef HAD_BIT_VECTOR_H
+#define HAD_BIT_VECTOR_H
+
 /*
- OutputFile.h -- write binary file.
+ BitVector.h -- vector of bits, stored compactly.
  Copyright (C) 2021 Dieter Baron
  
  This file is part of ti99tape, a utility to create TZX files
@@ -28,38 +31,19 @@
  IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "OutputFile.h"
+#include <vector>
 
-#include "Exception.h"
-
-OutputFile::OutputFile(const std::string &filename) {
-    f = fopen(filename.c_str(), "wb");
+class BitVector {
+public:
+    BitVector() : length(0) { }
     
-    if (f == NULL) {
-        throw Exception("can't open file");
-    }
-}
+    std::vector<uint8_t> &data() { return store; }
+    size_t size() { return length; }
+    void push_back(bool value);
+    
+private:
+    std::vector<uint8_t> store;
+    size_t length;
+};
 
-OutputFile::~OutputFile() {
-    fclose(f);
-}
-
-void OutputFile::write_16(uint16_t value) {
-    write_8(value & 0xff);
-    write_8(value >> 8);
-}
-
-
-void OutputFile::write_24(uint32_t value) {
-    write_8(value & 0xff);
-    write_8((value >> 8) & 0xff);
-    write_8((value >> 16) & 0xff);
-}
-
-
-void OutputFile::write_32(uint32_t value) {
-    write_8(value & 0xff);
-    write_8((value >> 8) & 0xff);
-    write_8((value >> 16) & 0xff);
-    write_8(value >> 24);
-}
+#endif // HAD_BIT_VECTOR_H

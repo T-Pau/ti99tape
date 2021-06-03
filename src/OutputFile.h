@@ -43,6 +43,7 @@ public:
     void write_string(const std::string &string) { fputs(string.c_str(), f); };
     void write_8(uint8_t value) { putc(value, f); }
     void write_16(uint16_t value);
+    void write_24(uint32_t value);
     void write_32(uint32_t value);
     void write_data(const std::vector<uint8_t> &data) { fwrite(data.data(), 1, data.size(), f); }
 

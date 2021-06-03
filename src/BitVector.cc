@@ -1,5 +1,5 @@
 /*
- OutputFile.h -- write binary file.
+ BitVector.h -- vector of bits, stored compactly.
  Copyright (C) 2021 Dieter Baron
  
  This file is part of ti99tape, a utility to create TZX files
@@ -28,38 +28,14 @@
  IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "OutputFile.h"
+#include "BitVector.h"
 
-#include "Exception.h"
-
-OutputFile::OutputFile(const std::string &filename) {
-    f = fopen(filename.c_str(), "wb");
-    
-    if (f == NULL) {
-        throw Exception("can't open file");
+void BitVector::push_back(bool value) {
+    if (length % 8 == 0) {
+        store.push_back(0);
     }
-}
 
-OutputFile::~OutputFile() {
-    fclose(f);
-}
-
-void OutputFile::write_16(uint16_t value) {
-    write_8(value & 0xff);
-    write_8(value >> 8);
-}
-
-
-void OutputFile::write_24(uint32_t value) {
-    write_8(value & 0xff);
-    write_8((value >> 8) & 0xff);
-    write_8((value >> 16) & 0xff);
-}
-
-
-void OutputFile::write_32(uint32_t value) {
-    write_8(value & 0xff);
-    write_8((value >> 8) & 0xff);
-    write_8((value >> 16) & 0xff);
-    write_8(value >> 24);
+    uint8_t bit = value ? 1 : 0;
+    store[length/8] = store[length/8] | (bit << (7 - (length % 8)));
+    length += 1;
 }

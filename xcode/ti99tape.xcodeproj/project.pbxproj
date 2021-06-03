@@ -16,6 +16,7 @@
 		4B9E89BF26678E4A00CC3407 /* TI99TapeEncoder.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4B9E89BD26678E4A00CC3407 /* TI99TapeEncoder.cc */; };
 		4B9E89C226678E8200CC3407 /* OutputFile.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4B9E89C026678E8200CC3407 /* OutputFile.cc */; };
 		4BB3125D2666883E0078973C /* TZX.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4BB3125B2666883E0078973C /* TZX.cc */; };
+		4BDDD9202668C76B00D858F3 /* BitVector.cc in Sources */ = {isa = PBXBuildFile; fileRef = 4BDDD91E2668C76B00D858F3 /* BitVector.cc */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -58,6 +59,8 @@
 		4B9E89C126678E8200CC3407 /* OutputFile.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OutputFile.h; sourceTree = "<group>"; };
 		4BB3125B2666883E0078973C /* TZX.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = TZX.cc; sourceTree = "<group>"; };
 		4BB3125C2666883E0078973C /* TZX.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TZX.h; sourceTree = "<group>"; };
+		4BDDD91E2668C76B00D858F3 /* BitVector.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = BitVector.cc; sourceTree = "<group>"; };
+		4BDDD91F2668C76B00D858F3 /* BitVector.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = BitVector.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -92,6 +95,8 @@
 			isa = PBXGroup;
 			children = (
 				4B0C21E62663CADC0054DD62 /* Buffer.cc */,
+				4BDDD91E2668C76B00D858F3 /* BitVector.cc */,
+				4BDDD91F2668C76B00D858F3 /* BitVector.h */,
 				4B0C21E72663CADC0054DD62 /* Buffer.h */,
 				4B0C21E92663CD6F0054DD62 /* Exception.cc */,
 				4B0C21EA2663CD6F0054DD62 /* Exception.h */,
@@ -186,6 +191,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4BDDD9202668C76B00D858F3 /* BitVector.cc in Sources */,
 				4BB3125D2666883E0078973C /* TZX.cc in Sources */,
 				4B0C21E52663C57D0054DD62 /* Wav.cc in Sources */,
 				4B9E89AB2664CF2F00CC3407 /* Pulses.cc in Sources */,

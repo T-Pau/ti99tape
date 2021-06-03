@@ -62,6 +62,18 @@ void TZX::add_general_data(const GeneralizedDataBlock &block) {
     file.write_data(block.data);
 }
 
+
+void TZX::add_pure_data(const PureDataBlock &block) {
+    file.write_8(0x14);
+    file.write_16(block.zero_pulse_length);
+    file.write_16(block.one_pulse_length);
+    file.write_8((block.number_of_bits % 8) == 0 ? 8 : (block.number_of_bits % 8));
+    file.write_16(block.pause_after);
+    file.write_24(static_cast<uint32_t>(block.data.size()));
+    file.write_data(block.data);
+}
+
+
 void TZX::add_pure_tone(uint16_t pulse_length, uint16_t repetitions) {
     file.write_8(0x12);
     file.write_16(pulse_length);
@@ -150,4 +162,18 @@ uint32_t TZX::GeneralizedDataBlock::block_length() const {
     }
     
     return static_cast<uint32_t>(length);
+}
+
+
+TZX::PureDataBlock::PureDataBlock(uint16_t pause_after_, uint16_t zero_pulse_length_, uint16_t one_pulse_length_, uint32_t number_of_bits_, const std::vector<uint8_t> &data_) : pause_after(pause_after_), zero_pulse_length(zero_pulse_length_), one_pulse_length(one_pulse_length_), number_of_bits(number_of_bits_) {
+    if (number_of_bits >= (1 << 27)) {
+        throw Exception("data too long");
+    }
+    if (data_.size() < (number_of_bits + 7)/8) {
+        throw Exception("too little data");
+    }
+    if (data_.size() > (number_of_bits + 7)/8) {
+        throw Exception("too much data");
+    }
+    data = data_;
 }

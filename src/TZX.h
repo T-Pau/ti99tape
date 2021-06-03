@@ -76,10 +76,22 @@ public:
     private:
         uint8_t get_number_of_pulses(const SymbolDefinitions &symbols) const;
     };
+    
+    class PureDataBlock {
+    public:
+        PureDataBlock(uint16_t pause_after, uint16_t zero_pulse_length, uint16_t one_pulse_length, uint32_t number_of_bits, const std::vector<uint8_t> &data);
+
+        uint16_t pause_after;
+        uint16_t zero_pulse_length;
+        uint16_t one_pulse_length;
+        uint32_t number_of_bits;
+        std::vector<uint8_t> data;
+    };
 
     TZX(const std::string &filename);
     
     void add_general_data(const GeneralizedDataBlock &block);
+    void add_pure_data(const PureDataBlock &block);
     void add_pure_tone(uint16_t pulse_length, uint16_t repetitions);
     void add_pulse_sequence(const std::vector<uint16_t> &pulses);
 
