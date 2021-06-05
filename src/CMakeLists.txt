@@ -2,11 +2,15 @@ SET(SOURCES
     BitVector.cc
     Buffer.cc
     Exception.cc
+    FileFormat.cc
+    GetOpt.cc
     OutputFile.cc
     Pulses.cc
+    TI99TapeDecoder.cc
     TI99TapeEncoder.cc
     TZX.cc
     Wav.cc
+    System.cc
     main.cc
     utility.cc
 )

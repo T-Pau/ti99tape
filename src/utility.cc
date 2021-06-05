@@ -30,6 +30,19 @@
 
 #include "utility.h"
 
+#include <filesystem>
+#include <fstream>
+
+std::vector<uint8_t> get_file_contents(const std::string &filename) {
+    auto file = std::ifstream(filename, std::ios::binary);
+    auto data = std::vector<uint8_t>();
+    data.reserve(std::filesystem::file_size(filename));
+    data.insert(data.end(), (std::istreambuf_iterator<char>(file)), (std::istreambuf_iterator<char>()));
+    
+    return data;
+}
+
+
 size_t number_of_bits(uint64_t value) {
     size_t i = 0;
     while (value > (1 << i)) {
@@ -37,4 +50,10 @@ size_t number_of_bits(uint64_t value) {
     }
     
     return i;
+}
+
+
+void write_file(const std::string &filename, const std::vector<uint8_t> &data) {
+    auto file = std::ofstream(filename, std::ios::binary);
+    file.write(reinterpret_cast<const char *>(data.data()), data.size());
 }

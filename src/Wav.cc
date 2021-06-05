@@ -30,16 +30,10 @@
 
 #include "Wav.h"
 
-#include <fstream>
-#include <iostream>
-
 #include "Buffer.h"
 #include "Exception.h"
 
-Wav::Wav(const std::string &filename, Mixdown mixdown) {
-    auto file = std::ifstream(filename, std::ios::binary);
-    auto data = std::vector<uint8_t>((std::istreambuf_iterator<char>(file)), (std::istreambuf_iterator<char>()));
-
+Wav::Wav(const std::vector<uint8_t> &data, Mixdown mixdown) {
     auto buffer = Buffer(data);
     
     auto magic = buffer.get_string(4);
@@ -98,35 +92,37 @@ Wav::Wav(const std::string &filename, Mixdown mixdown) {
             
             for (size_t i = 0; i < num_samples; i++) {
                 switch (mixdown) {
-                case RIGHT:
-                    if (channels == 2) {
-                        chunk_data.skip(sample_size);
-                    }
-                    // fallthrough
-                case LEFT:
-                    switch (sample_size) {
-                    case 1:
-                        samples[i] = (chunk_data.get_uint8() - 127) * 0x101;
+                    case RIGHT:
+                        if (channels == 2) {
+                            chunk_data.skip(sample_size);
+                        }
+                        // fallthrough
+                    case LEFT:
+                        switch (sample_size) {
+                            case 1: {
+                                uint8_t sample8 = chunk_data.get_uint8();
+                                samples[i] = (static_cast<int16_t>(sample8) * 0x101) - 0x8000;
+                                break;
+                            }
+                            case 2:
+                                samples[i] = chunk_data.get_int16();
+                                break;
+                        }
+                        if (mixdown == LEFT && channels == 2) {
+                            chunk_data.skip(sample_size);
+                        }
                         break;
-                    case 2:
-                        samples[i] = chunk_data.get_int16();
+                        
+                    case BOTH:
+                        switch (sample_size) {
+                            case 1:
+                                samples[i] = (static_cast<int16_t>(chunk_data.get_uint8()) + static_cast<int16_t>(chunk_data.get_uint8()) * 0x80) - 0x8000;
+                                break;
+                            case 2:
+                                samples[i] = (chunk_data.get_int16() + chunk_data.get_int16()) / 2;
+                                break;
+                        }
                         break;
-                    }
-                    if (mixdown == LEFT && channels == 2) {
-                        chunk_data.skip(sample_size);
-                    }
-                    break;
-                    
-                case BOTH:
-                    switch (sample_size) {
-                    case 1:
-                        samples[i] = (chunk_data.get_uint8() + chunk_data.get_uint8() - 254) * 0x80;
-                        break;
-                    case 2:
-                        samples[i] = (chunk_data.get_int16() + chunk_data.get_int16()) / 2;
-                        break;
-                    }
-                    break;
                 }
                 
                 if (abs(samples[i]) > peek) {

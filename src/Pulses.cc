@@ -34,7 +34,7 @@ Pulses::Pulses(Wav wav_) : wav(wav_) {
     cutoff = wav.peek * 1 / 16;
 }
 
-std::string Pulses::Pulse::type_name() const {
+std::string Pulse::type_name() const {
     switch (type) {
         
     case SILENCE:
@@ -43,14 +43,12 @@ std::string Pulses::Pulse::type_name() const {
         return "positive";
     case NEGATIVE:
         return "negative";
-    case END:
-        return "end";
     }
     
     return "invalid";
 }
 
-Pulses::Iterator::Iterator(const Pulses &pulses_, bool end) : pulses(pulses_), phase(START), count(0), current_pulse(SILENCE, 0) {
+Pulses::Iterator::Iterator(const Pulses &pulses_, bool end) : pulses(pulses_), phase(START), count(0), current_pulse(Pulse::SILENCE, 0) {
     if (end) {
         current = pulses.wav.samples.end();
     }
@@ -67,20 +65,32 @@ void Pulses::Iterator::next() {
         auto sample = *current;
         current++;
         count += 1;
+        
+#if 0
+        if (sample < -pulses.cutoff) {
+            printf("%d < <\n", sample);
+        }
+        else if (sample <= pulses.cutoff) {
+            printf("< %d <\n", sample);
+        }
+        else {
+            printf("< < %d\n", sample);
+        }
+#endif
 
         switch (phase) {
         case START:
             if (sample > pulses.cutoff) {
                 phase = PLUS_FALLING;
                 if (count > 2) {
-                    set_pulse(SILENCE);
+                    set_pulse(Pulse::SILENCE);
                     return;
                 }
             }
             else if (sample < -pulses.cutoff) {
                 phase = MINUS_RISING;
                 if (count > 2) {
-                    set_pulse(SILENCE);
+                    set_pulse(Pulse::SILENCE);
                     return;
                 }
             }
@@ -91,14 +101,19 @@ void Pulses::Iterator::next() {
                 phase = PLUS_FALLING;
             }
             else if (sample < -pulses.cutoff) {
-                fprintf(stderr, "ERROR: missing positive peak\n");
+                printf("ERROR: missing positive peak\n");
             }
             break;
             
         case PLUS_FALLING:
             if (sample < 0) {
-                phase = MINUS_FALLING;
-                set_pulse(POSITIVE);
+                if (sample < -pulses.cutoff) {
+                    phase = MINUS_RISING;
+                }
+                else {
+                    phase = MINUS_FALLING;
+                }
+                set_pulse(Pulse::POSITIVE);
                 return;
             }
             break;
@@ -108,14 +123,19 @@ void Pulses::Iterator::next() {
                 phase = MINUS_RISING;
             }
             else if (sample > pulses.cutoff) {
-                fprintf(stderr, "ERROR: missing negative peak\n");
+                printf("ERROR: missing negative peak\n");
             }
             break;
             
         case MINUS_RISING:
             if (sample > 0) {
-                phase = PLUS_RISING;
-                set_pulse(NEGATIVE);
+                if (sample > pulses.cutoff) {
+                    phase = PLUS_FALLING;
+                }
+                else {
+                    phase = PLUS_RISING;
+                }
+                set_pulse(Pulse::NEGATIVE);
                 return;
             }
         }
@@ -123,7 +143,8 @@ void Pulses::Iterator::next() {
 
 }
 
-void Pulses::Iterator::set_pulse(PulseType type) {
-    current_pulse = Pulse(type, count);
+void Pulses::Iterator::set_pulse(Pulse::Type type) {
+    current_pulse = Pulse(type, count * 3500000 / pulses.wav.sample_rate);
+    // printf("PULSE: %s %llu\n", current_pulse.type_name().c_str(), current_pulse.duration);
     count = 0;
 }

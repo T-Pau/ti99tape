@@ -1,5 +1,5 @@
-#ifndef HAD_TI99_TAPE_ENCODER_H
-#define HAD_TI99_TAPE_ENCODER_H
+#ifndef HAD_TI99_TAPE_DECODER_H
+#define HAD_TI99_TAPE_DECODER_H
 
 /*
  TI99TapeEncoder.h -- encode file in TI 99/4A tape format.
@@ -31,36 +31,47 @@
  IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <string>
-#include <vector>
+#include "Exception.h"
+#include "Pulses.h"
 
-#include "TZX.h"
-
-class TI99TapeEncoder {
+class TI99TapeDecoder {
 public:
-    TI99TapeEncoder(TZX &tzx_, bool use_data_block_) : tzx(tzx_), use_data_block(use_data_block_), first(true) { }
+    class DecodeException : public Exception {
+    public:
+        enum ErrorCode {
+            OK,
+            CRC_ERROR,
+            ENCODING_ERROR,
+            OUT_OF_DATA,
+            NO_DATA,
+            NO_SYNC
+        };
+        
+        DecodeException(ErrorCode code, const std::string &message) : Exception(message), error(code) { }
+        DecodeException(const DecodeException &other) : Exception(other.message), error(other.error) { }
 
-    void encode(const std::vector<uint8_t> &data) { encode(data.begin(), data.end()); }
-    void encode(std::vector<uint8_t>::const_iterator start, std::vector<uint8_t>::const_iterator end);
+        ErrorCode error;
+    };
+
+    TI99TapeDecoder(Pulses::Iterator begin, Pulses::Iterator end_) : pulse_iterator(begin), end(end_) { }
+    
+    std::vector<uint8_t> decode();
     
 private:
-    TZX tzx;
-    bool use_data_block;
-    bool first;
+    Pulses::Iterator pulse_iterator;
+    Pulses::Iterator end;
+
+    uint64_t zero_length;
+    uint64_t long_pulse_threshold;
     
-    std::vector<uint8_t> data;
-    std::vector<uint16_t> pulses;
-    
-    void add_byte(uint8_t byte);
-    void add_block(std::vector<uint8_t>::const_iterator start, std::vector<uint8_t>::const_iterator end);
-    
-    static uint16_t ZERO_PULSE_LENGTH;
-    static uint16_t ONE_PULSE_LENGTH;
-    static uint16_t NUMBER_OF_SYNC_PULSES;
-    
-    static TZX::GeneralizedDataBlock::SymbolDefinitions pilot_symbols;
-    static TZX::GeneralizedDataBlock::SymbolDefinitions data_symbols;
-    static TZX::GeneralizedDataBlock::PilotData pilot_data;
+    std::vector<uint8_t> read_block();
+    void read_block_sync();
+    uint8_t read_byte();
+    void read_data_mark();
+    void read_sync();
+
+    static const uint64_t SYNC_SKIP_BEGINNING;
+    static const uint64_t SYNC_MINIMUM_COUNT;
 };
 
-#endif // HAD_TI99_TAPE_ENCODER_H
+#endif // HAD_TI99_TAPE_DECODER_H

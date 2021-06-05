@@ -33,7 +33,10 @@
 
 #include <cstdint>
 #include <cstdlib>
+#include <vector>
 
+std::vector<uint8_t> get_file_contents(const std::string &filename);
 size_t number_of_bits(uint64_t value);
+void write_file(const std::string &filename, const std::vector<uint8_t> &data);
 
 #endif // HAD_UTILITY_H

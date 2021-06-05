@@ -32,118 +32,204 @@
 #include <fstream>
 
 #include "Exception.h"
+#include "FileFormat.h"
+#include "GetOpt.h"
 #include "Pulses.h"
+#include "System.h"
+#include "TI99TapeDecoder.h"
 #include "TI99TapeEncoder.h"
 #include "TZX.h"
+#include "utility.h"
 #include "Wav.h"
 
 #define T_LENGTH 3500000
 
-static void convert_titape(const std::string &infile, const std::string &outfile);
-static void convert_wav(const std::string &infile, const std::string &outfile);
+static void convert(System::Type system, FileFormat::Type input_format, FileFormat::Type output_format, const std::vector<uint8_t> &contents, const std::string &outfile);
+static void convert_wav(Pulses &pulses, TZX &tzx);
+static void encode_ti(std::vector<uint8_t>::const_iterator begin, std::vector<uint8_t>::const_iterator end, TZX &tzx);
 
 int main(int argc, const char * argv[]) {
-    if (argc != 3) {
-        fprintf(stderr, "%s: infile outfile\n", argv[0]);
+    auto options = GetOpt({
+        GetOpt::Option('F', "format", GetOpt::ARGUMENT_REQUIRED, "format", "specify output format"),
+        GetOpt::Option('s', "system", GetOpt::ARGUMENT_REQUIRED, "system", "specify computer system"),
+        GetOpt::Option('h', "help", "display this help message and exit")
+    }, "ti99tape by Dieter Baron", "Report bugs to ti99tape@tpau.group");
+    
+    options.parse(argc, argv);
+
+    if (options.is_set("help")) {
+        options.print_help();
+        exit(0);
+    }
+    
+    if (options.arguments.size() != 2) {
+        options.print_usage(true);
         exit(1);
     }
     
-    std::string infile = argv[1];
-    std::string outfile = argv[2];
-    
     try {
-        std::string extension = std::filesystem::path(infile).extension();
-        if (strcasecmp(extension.c_str(), ".wav") == 0) {
-            convert_wav(infile, outfile);
-        }
-        else if (strcasecmp(extension.c_str(), ".titape") == 0) {
-            convert_titape(infile, outfile);
+        std::string infile = options.arguments[0];
+        std::string outfile = options.arguments[1];
+        
+        auto output_format = FileFormat::UNKNOWN;
+        auto output_format_name = options.option("format");
+        if (output_format_name.has_value()) {
+            output_format = FileFormat::by_name(output_format_name.value());
         }
         else {
-            throw Exception("unknown extension '" + extension + "'");
+            output_format = FileFormat::by_filename(outfile);
         }
-    }
+        if (output_format == FileFormat::WAV) {
+            throw Exception("Writing WAV files is not supported.");
+        }
+        if (output_format == FileFormat::TI_TAPE) {
+            throw Exception("Writing TI-Tape files is not supported.");
+        }
+
+        auto system = System::UNKNOWN;
+        auto system_name = options.option("system");
+        if (system_name.has_value()) {
+            system = System::by_name(system_name.value());
+        }
+
+        // TODO: check that output_format / system combination is valid
+        
+        auto data = get_file_contents(infile);
+        
+        auto input_format = FileFormat::by_contents(data, system);
+        
+        if (input_format == FileFormat::TZX) {
+            throw Exception("reading TZX files not supported yet");
+        }
+        
+        convert(system, input_format, output_format, data, outfile);
+
+     }
     catch (std::exception &e) {
         fprintf(stderr, "ERROR: %s\n", e.what());
     }
 }
 
 
-void convert_wav(const std::string &infile, const std::string &outfile) {
-    auto wav = Wav(infile, Wav::LEFT);
-    auto pulses = Pulses(wav);
-    
+static void convert_wav(Pulses &pulses, TZX &tzx) {
     std::vector<uint16_t> data;
 
     for (auto pulse : pulses) {
         switch (pulse.type) {
-            case Pulses::SILENCE:
-                // TODO: handle in middle of file
+            case Pulse::SILENCE:
+                // TODO: add silence block
                 break;
         
-            case Pulses::POSITIVE:
-            case Pulses::NEGATIVE:
-                data.push_back(pulse.duration * T_LENGTH / wav.sample_rate);
-                break;
-
-            case Pulses::END:
+            case Pulse::POSITIVE:
+            case Pulse::NEGATIVE:
+                data.push_back(pulse.duration);
                 break;
         }
     }
     
-    auto tzx = TZX(outfile);
     tzx.add_pulse_sequence(data);
-
-#if 0
-    auto in_sync = true;
-    uint64_t sync_length = 0;
-    uint64_t sync_count = 0;
-    uint64_t zero_length = 0;
-    auto data = std::vector<uint64_t>();
-    
-    for (auto pulse : pulses) {
-        switch (pulse.type) {
-            case Pulses::SILENCE:
-                // TODO: handle in middle of file
-                break;
-                
-            case Pulses::POSITIVE:
-            case Pulses::NEGATIVE:
-                if (in_sync) {
-                    if (sync_count < 10 || pulse.duration >= zero_length * 3 / 4) {
-                        sync_length += pulse.duration;
-                        sync_count += 1;
-                        zero_length = sync_length / sync_count;
-                        break;
-                    }
-                    else {
-                        tzx.sync(zero_length * T_LENGTH / wav.sample_rate, sync_count);
-                        in_sync = false;
-                    }
-                }
-                
-                tzx.pulse(pulse.duration * T_LENGTH / wav.sample_rate);
-                break;
-                
-            case Pulses::END:
-                break;
-        }
-    }
-#endif
 }
 
 
-
-
-void convert_titape(const std::string &infile, const std::string &outfile) {
-    auto file = std::ifstream(infile, std::ios::binary);
-    auto data = std::vector<uint8_t>((std::istreambuf_iterator<char>(file)), (std::istreambuf_iterator<char>()));
-
-    if (strncmp(reinterpret_cast<const char *>(data.data()), "TI-TAPE", 7) != 0) {
-        throw Exception("not a TI-Tape file");
-    }
+static void convert(System::Type system, FileFormat::Type input_format, FileFormat::Type output_format, const std::vector<uint8_t> &data, const std::string &outfile) {
+    // TODO: check that input_format / output_format / system combination is valid
     
-    auto encoder = TI99TapeEncoder(outfile, false);
+    switch (input_format) {
+        case FileFormat::UNKNOWN:
+        case FileFormat::RAW:
+            switch (output_format) {
+                case FileFormat::TZX: {
+                    auto tzx = TZX(outfile);
+                    
+                    switch (system) {
+                        case System::TI99_4A:
+                            encode_ti(data.begin(), data.end(), tzx);
+                            return;
+                            
+                        default:
+                            break;
+                    }
+                    break;
+                }
+                    
+                default:
+                    break;
+            }
+            break;
+            
+        case FileFormat::TI_TAPE: {
+            switch (output_format) {
+                case FileFormat::TZX: {
+                    auto tzx = TZX(outfile);
+                    
+                    switch (system) {
+                        case System::TI99_4A:
+                            encode_ti(data.begin() + 20, data.end(), tzx);
+                            break;
+                            
+                        default:
+                            break;
+                    }
+                    break;
+                }
+                    
+                default:
+                    break;
+            }
+            break;
+            
+        }
+            
+        case FileFormat::WAV: {
+            auto wav = Wav(data, Wav::RIGHT);
+            auto pulses = Pulses(wav);
+            
+            switch (output_format) {
+                case FileFormat::TZX: {
+                    auto tzx = TZX(outfile);
+                    
+                    switch (system) {
+                        case System::TI99_4A: {
+                            auto decoder = TI99TapeDecoder(pulses.begin(), pulses.end());
+                            auto data = decoder.decode();
+                            encode_ti(data.begin(), data.end(), tzx);
+                            return;
+                        }
+                            
+                        default:
+                            convert_wav(pulses, tzx);
+                            break;
+                    }
+                    break;
+                }
+                    
+                case FileFormat::RAW: {
+                    switch (system) {
+                        case System::TI99_4A: {
+                            auto decoder = TI99TapeDecoder(pulses.begin(), pulses.end());
+                            auto data = decoder.decode();
+                            write_file(outfile, data);
+                            return;
+                        }
+                            
+                        default:
+                            break;
+                    }
+                }
+                default:
+                    break;
+            }
+            break;
+        }
+            
+        default:
+            break;
+    }
 
-    encoder.encode(data.begin() + 20, data.end());
+    throw Exception("cannot convert " + System::name(system) + " " + FileFormat::name(input_format) + " to " + FileFormat::name(output_format));
+}
+
+static void encode_ti(std::vector<uint8_t>::const_iterator begin, std::vector<uint8_t>::const_iterator end, TZX &tzx) {
+    auto encoder = TI99TapeEncoder(tzx, false);
+    encoder.encode(begin, end);
 }

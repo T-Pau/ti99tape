@@ -41,7 +41,7 @@ public:
         BOTH,
         RIGHT
     };
-    Wav(const std::string &filename, Mixdown mixdown);
+    Wav(const std::vector<uint8_t> &data, Mixdown mixdown);
     
     int sample_rate;
     int16_t peek;

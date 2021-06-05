@@ -1,8 +1,5 @@
-#ifndef HAD_TI99_TAPE_ENCODER_H
-#define HAD_TI99_TAPE_ENCODER_H
-
 /*
- TI99TapeEncoder.h -- encode file in TI 99/4A tape format.
+ System.h -- computer system.
  Copyright (C) 2021 Dieter Baron
  
  This file is part of ti99tape, a utility to create TZX files
@@ -31,36 +28,35 @@
  IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <string>
-#include <vector>
+#include "System.h"
 
-#include "TZX.h"
+#include "Exception.h"
 
-class TI99TapeEncoder {
-public:
-    TI99TapeEncoder(TZX &tzx_, bool use_data_block_) : tzx(tzx_), use_data_block(use_data_block_), first(true) { }
-
-    void encode(const std::vector<uint8_t> &data) { encode(data.begin(), data.end()); }
-    void encode(std::vector<uint8_t>::const_iterator start, std::vector<uint8_t>::const_iterator end);
-    
-private:
-    TZX tzx;
-    bool use_data_block;
-    bool first;
-    
-    std::vector<uint8_t> data;
-    std::vector<uint16_t> pulses;
-    
-    void add_byte(uint8_t byte);
-    void add_block(std::vector<uint8_t>::const_iterator start, std::vector<uint8_t>::const_iterator end);
-    
-    static uint16_t ZERO_PULSE_LENGTH;
-    static uint16_t ONE_PULSE_LENGTH;
-    static uint16_t NUMBER_OF_SYNC_PULSES;
-    
-    static TZX::GeneralizedDataBlock::SymbolDefinitions pilot_symbols;
-    static TZX::GeneralizedDataBlock::SymbolDefinitions data_symbols;
-    static TZX::GeneralizedDataBlock::PilotData pilot_data;
+std::unordered_map<std::string, System::Type> System::names = {
+    { "ti 99/4A", TI99_4A },
+    { "ti994a", TI99_4A },
+    { "ti99", TI99_4A },
+    { "unknown", UNKNOWN }
 };
 
-#endif // HAD_TI99_TAPE_ENCODER_H
+std::string System::name(Type type) {
+    switch (type) {
+        case TI99_4A:
+            return "TI 99/4A";
+        case UNKNOWN:
+            return "unknown";
+    }
+    
+    return "invalid";
+}
+
+System::Type System::by_name(const std::string &name) {
+    // TOOD: lowercase name
+    auto it = names.find(name);
+    
+    if (it == names.end()) {
+        throw Exception("unknown system '" + name + "'");
+    }
+    
+    return it->second;
+}

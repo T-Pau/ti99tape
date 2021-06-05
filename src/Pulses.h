@@ -35,25 +35,24 @@
 
 #include "Wav.h"
 
-class Pulses {
+class Pulse {
 public:
-    enum PulseType {
+    enum Type {
         SILENCE,
         POSITIVE,
-        NEGATIVE,
-        END
+        NEGATIVE
     };
+    Pulse(Type type_, uint64_t duration_) : type(type_), duration(duration_) { }
     
-    class Pulse {
-    public:
-        Pulse(PulseType type_, uint64_t duration_) : type(type_), duration(duration_) { }
+    bool is_pulse() const { return type == POSITIVE || type == NEGATIVE; }
+    std::string type_name() const;
+    
+    Type type;
+    uint64_t duration;
+};
 
-        std::string type_name() const;
-        
-        PulseType type;
-        uint64_t duration;
-    };
-    
+class Pulses {
+public:
     class Iterator {
     public:
         using iterator_category = std::forward_iterator_tag;
@@ -94,7 +93,7 @@ public:
         Pulse current_pulse;
         
         void next();
-        void set_pulse(PulseType type);
+        void set_pulse(Pulse::Type type);
     };
     
     Pulses(Wav wav);
