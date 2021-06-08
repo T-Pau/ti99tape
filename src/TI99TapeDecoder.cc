@@ -47,39 +47,35 @@ std::vector<uint8_t> TI99TapeDecoder::decode() {
     for (uint8_t block = 0; block < number_of_blocks; block++) {
         std::vector<uint8_t> data0;
         std::vector<uint8_t> data1;
-        auto status0 = DecodeException::OK;
-        auto message0 = std::string("OK");
-        auto status1 = DecodeException::OK;
-        auto message1 = std::string("OK");
+        auto status0 = DecodeException(DecodeException::OK, "OK");
+        auto status1 = DecodeException(DecodeException::OK, "OK");
         
         try {
             data0 = read_block();
         }
         catch (DecodeException &ex) {
-            status0 = ex.error;
-            message0 = ex.message;
+            status0 = ex;
         }
         try {
             data1 = read_block();
         }
         catch (DecodeException &ex) {
-            status1 = ex.error;
-            message1 = ex.message;
+            status1 = ex;
         }
         
         //printf("DEBUG: read block %u: %s, %s\n", block, message0.c_str(), message1.c_str());
 
-        if (status0 == DecodeException::OK) {
-            if (status1 == DecodeException::OK) {
+        if (status0.error == DecodeException::OK) {
+            if (status1.error == DecodeException::OK) {
                 // compare data?
             }
             data.insert(data.end(), data0.begin(), data0.end());
         }
-        else if (status1 == DecodeException::OK) {
+        else if (status1.error == DecodeException::OK) {
             data.insert(data.end(), data1.begin(), data1.end());
         }
         else {
-            throw status0 <= status1 ? DecodeException(status0, message0) : DecodeException(status1, message1);
+            throw status0.error <= status1.error ? status0 : status1;
         }
     }
     

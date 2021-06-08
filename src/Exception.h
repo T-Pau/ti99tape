@@ -37,11 +37,10 @@
 class Exception : public std::exception {
 public:
     Exception(const std::string &message_) : message(message_) { }
-    Exception(const Exception &other): message(other.message) { }
     
-    virtual const char* what() const throw() { return message.c_str(); }
+    virtual const char* what() const noexcept { return message.c_str(); }
 
-    const std::string message;
+    std::string message;
 };
 
 #endif // HAD_EXCEPTION_H
